@@ -1,4 +1,4 @@
 psutil
 net-tools
 dnspython
-
+netifaces
