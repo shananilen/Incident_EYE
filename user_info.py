@@ -40,16 +40,16 @@ def user_info():
                 password_changed_date = datetime.date(1970, 1, 1) + datetime.timedelta(days_since_1970)
             else:
                 password_changed_date = "Unknown"
+            print("\n")
             print(f"Password last changed: {password_changed_date}")
 
             # Check for sudo privileges
-            sudo_privileges = "No"
-            with open('/etc/sudoers') as f:
-                for line in f:
-                    if line.strip().startswith(p.pw_name) and 'ALL=(ALL:ALL) ALL' in line:
-                        sudo_privileges = "Yes"
-                        break
-            print(f"Sudo privileges: {sudo_privileges}")
+            print("\nSudo privileges:")
+            try:
+                output = subprocess.run(['sudo', '-l', '-U', p.pw_name], capture_output=True, text=True, check=True).stdout
+                print(output)
+            except subprocess.CalledProcessError as e:
+                print(f"Error checking sudo privileges: {e}")
 
             # Get login history
             print("\nLogin history:")
@@ -59,7 +59,11 @@ def user_info():
             # Get failed login attempts
             print("\nFailed login attempts:")
             output = subprocess.run(['faillog', '-u', p.pw_name], capture_output=True, text=True).stdout
-            print(output)
+            if not output.strip():
+                print("No failed login attempts recorded by faillog.")
+                print("Note: For more detailed logs, consider querying the systemd journal using 'journalctl'.")
+            else:
+                print(output)
 
             # Get user activity
             print("\nUser activity:")
