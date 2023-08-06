@@ -1,0 +1,5 @@
+pip
+psutil
+net-tools
+dnspython
+
